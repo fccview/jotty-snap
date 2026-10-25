@@ -12,6 +12,7 @@ import { vllmAdapter } from "@/ai/providers/vllm";
 import { ProviderId, type AiConfig, type ProviderAdapter } from "@/ai/providers/types";
 
 export * from "@/ai/providers/types";
+export { sniffProvider, type Detection } from "@/ai/providers/detect";
 
 export const PROVIDER_ORDER: readonly ProviderId[] = Object.freeze([
   ProviderId.OpenAICompat,
@@ -44,12 +45,16 @@ export const pickAdapter = (id: ProviderId) => ADAPTERS[id] ?? openAICompatAdapt
 export const endpointOf = (config: AiConfig) =>
   config.baseUrl.trim() || pickAdapter(config.provider).settings.defaultBaseUrl || "";
 
-export const isAiReady = (config: AiConfig) => {
+export const aiGaps = (config: AiConfig) => {
   const { requires } = pickAdapter(config.provider).settings;
-  if (!config.model.trim()) return false;
-  if (requires.apiKey && !config.apiKey.trim()) return false;
-  return !(requires.baseUrl && !config.baseUrl.trim());
+  return [
+    requires.baseUrl && !config.baseUrl.trim() ? "a base URL" : null,
+    requires.apiKey && !config.apiKey.trim() ? "an API key" : null,
+    config.model.trim() ? null : "a model",
+  ].filter((gap): gap is string => gap !== null);
 };
+
+export const isAiReady = (config: AiConfig) => aiGaps(config).length === 0;
 
 export const fetchModels = (config: AiConfig) =>
   listModels(config, pickAdapter(config.provider).settings.defaultBaseUrl);

@@ -55,6 +55,29 @@ describe("extract", () => {
     expect(page.meta.author).toBe("Ada");
   });
 
+  test("article mode drops the byline even when metadata already names the author", () => {
+    const filler = "Frasi leggibili su come salvare le pagine come note in Jotty. ".repeat(20);
+    document.documentElement.innerHTML = `
+      <head>
+        <title>Articolo</title>
+        <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Articolo","author":{"@type":"Person","name":"Giulia"},"datePublished":"2026-09-01"}</script>
+      </head>
+      <body lang="it">
+        <article>
+          <h1>Articolo</h1>
+          <div class="post-byline"><a rel="author" href="/giulia"><img src="/giulia.png">Giulia</a> · 3 minuti di lettura</div>
+          <p>${filler}</p>
+          <p>${filler}</p>
+        </article>
+      </body>`;
+    const page = extractPage(ClipMode.Article, document);
+    expect(page.html).not.toContain("giulia.png");
+    expect(page.html).not.toContain("minuti di lettura");
+    expect(page.html).toContain("Frasi leggibili");
+    expect(page.meta.author).toBe("Giulia");
+    expect(page.meta.published).toBe("2026-09-01");
+  });
+
   test("selection mode complains when nothing is selected", () => {
     loadPage();
     document.getSelection()?.removeAllRanges();

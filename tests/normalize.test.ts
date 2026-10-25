@@ -40,6 +40,16 @@ describe("links", () => {
     const html = normalize('<p><a href="../about" class="x">About</a> <a href="javascript:void(0)">Nope</a></p>');
     expect(html).toBe('<p><a href="https://example.com/about">About</a> Nope</p>');
   });
+
+  test("drops image-only links to other sites that carry campaign tracking", () => {
+    expect(normalize('<p><a href="https://sponsor.io/?utm_source=example"><img src="https://sponsor.io/b.png"></a></p><p>Body</p>')).toBe("<p>Body</p>");
+  });
+
+  test("keeps linked images without campaign tracking, on the same site, or with text", () => {
+    expect(normalize('<p><a href="https://other.io/full.png"><img src="https://other.io/a.png"></a></p>')).toBe('<img src="https://other.io/a.png">');
+    expect(normalize('<p><a href="https://www.example.com/x?utm_source=feed"><img src="/a.png"></a></p>')).toBe('<img src="https://example.com/a.png">');
+    expect(normalize('<p><a href="https://other.io/?utm_source=example">Other</a></p>')).toBe('<p><a href="https://other.io/?utm_source=example">Other</a></p>');
+  });
 });
 
 describe("code", () => {
@@ -117,6 +127,10 @@ describe("blocks", () => {
     expect(normalize('<p><img src="/a.png"></p><p>Text <img src="/b.png"></p>')).toBe(
       '<img src="https://example.com/a.png"><p>Text <img src="https://example.com/b.png"></p>',
     );
+  });
+
+  test("lifts linked images out of their paragraph too", () => {
+    expect(normalize('<p><a href="/full.png"><img src="/a.png"></a></p>')).toBe('<img src="https://example.com/a.png">');
   });
 
   test("boxes details content in a single div after the summary", () => {

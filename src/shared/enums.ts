@@ -14,6 +14,7 @@ export enum MessageType {
   GetTheme = "snap:get-theme",
   SuggestTags = "snap:suggest-tags",
   ListModels = "snap:list-models",
+  DetectProvider = "snap:detect-provider",
   TakePending = "snap:take-pending",
 }
 

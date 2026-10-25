@@ -1,4 +1,4 @@
-import { listModels, suggestTags } from "@/background/handlers/ai";
+import { detectProvider, listModels, suggestTags } from "@/background/handlers/ai";
 import { capture } from "@/background/handlers/capture";
 import { fetchTheme, listCatalog, testJotty } from "@/background/handlers/jotty";
 import { beamMeUp } from "@/background/handlers/save";
@@ -23,6 +23,7 @@ const HANDLERS: HandlerMap = {
   [MessageType.GetTheme]: fetchTheme,
   [MessageType.SuggestTags]: suggestTags,
   [MessageType.ListModels]: listModels,
+  [MessageType.DetectProvider]: detectProvider,
   [MessageType.TakePending]: takePending,
 };
 

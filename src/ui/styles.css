@@ -110,3 +110,14 @@
   scrollbar-width: thin;
   scrollbar-color: rgb(var(--muted-foreground) / 0.35) transparent;
 }
+
+@utility jotty-paper {
+  background-image: radial-gradient(rgb(var(--muted-foreground) / 0.35) 1.2px, transparent 1.2px);
+  background-image: radial-gradient(
+    hsl(from rgb(var(--background)) h calc(s * 0.6) calc(l + (50 - l) * 0.35)) 1.2px,
+    transparent 1.2px
+  );
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 35%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 35%, transparent 85%);
+}

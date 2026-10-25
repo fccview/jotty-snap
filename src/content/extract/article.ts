@@ -1,7 +1,7 @@
 import { Readability } from "@mozilla/readability";
 import { blankRoot, cloneVisible, ctxFor, ensureSize } from "@/content/extract/shared";
 import { fullPage } from "@/content/extract/page";
-import { mergeMeta, tricorder } from "@/content/meta";
+import { METADATA_SELECTORS, tricorder } from "@/content/meta";
 import { MAIN_STEPS, PREP_STEPS, runSteps } from "@/content/normalize";
 import { createLogger } from "@/shared/logger";
 import type { ExtractedPage } from "@/shared/types";
@@ -13,6 +13,7 @@ const CHAR_THRESHOLD = 300;
 export const readArticle = (doc: Document): ExtractedPage => {
   const meta = tricorder(doc);
   const clone = cloneVisible(doc);
+  for (const node of Array.from(clone.querySelectorAll(METADATA_SELECTORS))) node.remove();
   runSteps(clone.body, ctxFor(clone, meta.url), PREP_STEPS);
 
   const article = new Readability(clone, {
@@ -31,12 +32,10 @@ export const readArticle = (doc: Document): ExtractedPage => {
 
   return {
     html: ensureSize(root.innerHTML),
-    meta: mergeMeta(meta, {
-      title: article.title ?? undefined,
-      author: article.byline ?? undefined,
-      siteName: article.siteName ?? undefined,
-      published: article.publishedTime ?? undefined,
-      description: article.excerpt ?? undefined,
-    }),
+    meta: {
+      ...meta,
+      author: meta.author ?? article.byline ?? null,
+      description: meta.description ?? article.excerpt ?? null,
+    },
   };
 };

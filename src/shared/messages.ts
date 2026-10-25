@@ -1,3 +1,4 @@
+import type { Detection } from "@/ai/providers/detect";
 import type { AiConfig } from "@/ai/providers/types";
 import { browser } from "@/shared/browser";
 import { ClipMode, ErrorCode, MessageType } from "@/shared/enums";
@@ -33,6 +34,7 @@ export type MessageMap = {
     res: TagSuggestion;
   };
   [MessageType.ListModels]: { req: AiConfig; res: ModelOption[] };
+  [MessageType.DetectProvider]: { req: Pick<AiConfig, "baseUrl" | "apiKey">; res: Detection };
   [MessageType.TakePending]: { req: Empty; res: ClipMode | null };
 };
 

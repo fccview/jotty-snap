@@ -27,7 +27,7 @@ const baseManifest = (version: string) => ({
     page: "options/index.html",
     open_in_tab: true,
   },
-  permissions: ["activeTab", "scripting", "storage", "contextMenus"],
+  permissions: ["activeTab", "scripting", "storage", "contextMenus", "declarativeNetRequestWithHostAccess"],
   optional_host_permissions: ["http://*/*", "https://*/*"],
   commands: {
     _execute_action: {

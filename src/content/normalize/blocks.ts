@@ -1,9 +1,13 @@
 import { make, type NormalizeCtx, type NormalizeStep } from "@/content/normalize/types";
 
+const isBareImage = (node: Element) => node.tagName === "IMG" || node.tagName === "BR";
+
+const isImageLink = (node: Element) => node.tagName === "A" && Array.from(node.children).every(isBareImage);
+
 const isImageOnly = (paragraph: Element) =>
   !paragraph.textContent?.trim() &&
   paragraph.querySelector("img") !== null &&
-  Array.from(paragraph.children).every((child) => child.tagName === "IMG" || child.tagName === "BR");
+  Array.from(paragraph.children).every((child) => isBareImage(child) || isImageLink(child));
 
 const liftImages = (root: HTMLElement) => {
   for (const paragraph of Array.from(root.querySelectorAll("p"))) {

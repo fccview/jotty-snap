@@ -1,6 +1,7 @@
-import { RefreshIcon } from "@hugeicons/core-free-icons";
-import { ADAPTERS, PROVIDER_ORDER, pickAdapter, type ProviderId } from "@/ai/providers";
+import { RefreshIcon, Search01Icon } from "@hugeicons/core-free-icons";
+import { ADAPTERS, PROVIDER_ORDER, aiGaps, pickAdapter, type ProviderId } from "@/ai/providers";
 import { Section } from "@/options/components/Section";
+import { useDetect } from "@/options/hooks/useDetect";
 import { useModels } from "@/options/hooks/useModels";
 import type { AiSettings } from "@/shared/types";
 import { Button, ButtonSize, ButtonVariant } from "@/ui/components/Button";
@@ -16,9 +17,14 @@ type AiSectionProps = {
 const PROVIDER_OPTIONS = PROVIDER_ORDER.map((id) => ({ value: id, label: ADAPTERS[id].settings.label }));
 const MODEL_LIST_ID = "ai-models";
 
+const joinGaps = (gaps: string[]) =>
+  gaps.length > 1 ? `${gaps.slice(0, -1).join(", ")} and ${gaps[gaps.length - 1]}` : gaps[0];
+
 export const AiSection = ({ value, onChange }: AiSectionProps) => {
   const models = useModels();
+  const detector = useDetect((provider) => onChange({ provider }));
   const { settings } = pickAdapter(value.provider);
+  const gaps = aiGaps(value);
 
   return (
     <Section
@@ -30,7 +36,17 @@ export const AiSection = ({ value, onChange }: AiSectionProps) => {
 
       {value.enabled && (
         <>
-          <Field label="Provider" htmlFor="ai-provider" hint={settings.notes}>
+          <Field
+            label="Provider"
+            htmlFor="ai-provider"
+            hint={settings.notes}
+            aside={
+              <Button variant={ButtonVariant.Soft} size={ButtonSize.Small} className="h-7 px-2 text-xs" disabled={detector.busy} onClick={() => void detector.load(value)}>
+                <Icon icon={Search01Icon} spin={detector.busy} className="h-3.5 w-3.5" />
+                Detect
+              </Button>
+            }
+          >
             <Select
               id="ai-provider"
               value={value.provider}
@@ -38,6 +54,12 @@ export const AiSection = ({ value, onChange }: AiSectionProps) => {
               onValue={(provider) => onChange({ provider: provider as ProviderId, model: "" })}
             />
           </Field>
+          {detector.error && <Notice tone={NoticeTone.Error}>{detector.error.message}</Notice>}
+          {detector.found?.id === value.provider && (
+            <Notice tone={NoticeTone.Success}>
+              Detected {settings.label} at {detector.found.origin}.
+            </Notice>
+          )}
           <Field label={settings.requires.baseUrl ? "Base URL" : "Base URL (optional)"} htmlFor="ai-base">
             <Input
               id="ai-base"
@@ -68,6 +90,11 @@ export const AiSection = ({ value, onChange }: AiSectionProps) => {
             </datalist>
           </Field>
           {models.error && <Notice tone={NoticeTone.Error}>{models.error.message}</Notice>}
+          {gaps.length > 0 && (
+            <Notice tone={NoticeTone.Error}>
+              {settings.label} needs {joinGaps(gaps)} before tags can be suggested. Until then the Suggest button stays hidden.
+            </Notice>
+          )}
           <Toggle
             label="Suggest as soon as the popup opens"
             description="Otherwise use the Suggest button next to Tags."

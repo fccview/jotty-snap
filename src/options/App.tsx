@@ -29,8 +29,9 @@ export const App = () => {
   if (!draft.loaded) return null;
 
   return (
-    <div className="min-h-screen bg-background px-4">
-      <main className="mx-auto max-w-2xl space-y-6 py-10">
+    <div className="relative min-h-screen bg-background px-4">
+      <div aria-hidden="true" className="jotty-paper pointer-events-none fixed inset-0" />
+      <main className="relative mx-auto max-w-2xl space-y-6 py-10">
         <header>
           <div className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">Settings</div>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">{APP_NAME}</h1>
