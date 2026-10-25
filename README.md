@@ -13,4 +13,4 @@ Snap any web page into a [Jotty](https://jotty.page) note.
 
 ## Requirements
 
-[Jotty][https://jotty.page] >= 1.29.2
+[Jotty](https://jotty.page) >= 1.29.2
