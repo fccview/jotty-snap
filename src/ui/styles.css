@@ -1,0 +1,112 @@
+@import "tailwindcss";
+@import "@fontsource-variable/work-sans";
+@import "@fontsource-variable/ibm-plex-sans";
+@import "@fontsource-variable/google-sans-code";
+
+@source "../";
+
+@theme {
+  --color-background: rgb(var(--background));
+  --color-background-secondary: rgb(var(--background-secondary));
+  --color-foreground: rgb(var(--foreground));
+  --color-card: rgb(var(--card));
+  --color-card-foreground: rgb(var(--card-foreground));
+  --color-popover: rgb(var(--popover));
+  --color-popover-foreground: rgb(var(--popover-foreground));
+  --color-primary: rgb(var(--primary));
+  --color-primary-foreground: rgb(var(--primary-foreground));
+  --color-secondary: rgb(var(--secondary));
+  --color-secondary-foreground: rgb(var(--secondary-foreground));
+  --color-muted: rgb(var(--muted));
+  --color-muted-foreground: rgb(var(--muted-foreground));
+  --color-accent: rgb(var(--accent));
+  --color-accent-foreground: rgb(var(--accent-foreground));
+  --color-destructive: rgb(var(--destructive));
+  --color-destructive-foreground: rgb(var(--destructive-foreground));
+  --color-warning: rgb(var(--warning, 217 119 6));
+  --color-border: rgb(var(--border));
+  --color-input: rgb(var(--input));
+  --color-ring: rgb(var(--ring));
+  --font-sans: "Work Sans Variable", sans-serif;
+  --font-heading: "IBM Plex Sans Variable", sans-serif;
+  --font-mono: "Google Sans Code Variable", monospace;
+}
+
+@layer base {
+  :root {
+    --background: 249 249 249;
+    --background-secondary: 249 248 252;
+    --foreground: 48 48 48;
+    --card: 249 249 249;
+    --card-foreground: var(--foreground);
+    --popover: 249 249 249;
+    --popover-foreground: var(--foreground);
+    --primary: 157 95 254;
+    --primary-foreground: 249 249 249;
+    --secondary: 243 240 249;
+    --secondary-foreground: var(--foreground);
+    --muted: 243 240 249;
+    --muted-foreground: 107 99 139;
+    --accent: 243 240 249;
+    --accent-foreground: var(--foreground);
+    --destructive: 239 68 68;
+    --destructive-foreground: 249 249 249;
+    --border: 228 223 240;
+    --input: 228 223 240;
+    --ring: var(--primary);
+    --jotty-radius-effective: var(--jotty-radius, 0.25rem);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-snap-themed]) {
+      --background: 14 24 64;
+      --background-secondary: 76 22 132;
+      --foreground: 249 249 249;
+      --card: var(--background);
+      --popover: var(--background);
+      --primary-foreground: var(--foreground);
+      --secondary: var(--background-secondary);
+      --muted: var(--background-secondary);
+      --muted-foreground: 163 156 175;
+      --accent: var(--background-secondary);
+      --destructive-foreground: var(--foreground);
+      --border: 38 47 63;
+      --input: 38 47 63;
+    }
+  }
+
+  * {
+    border-color: var(--color-border);
+  }
+
+  html,
+  body {
+    background: var(--color-card);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    letter-spacing: -0.5px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+  }
+
+  pre,
+  code,
+  textarea.font-mono {
+    font-family: var(--font-mono);
+    letter-spacing: 0;
+  }
+}
+
+@utility rounded-jotty {
+  border-radius: var(--jotty-radius-effective);
+}
+
+@utility scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--muted-foreground) / 0.35) transparent;
+}

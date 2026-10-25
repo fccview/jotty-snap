@@ -1,0 +1,117 @@
+name: Build and Release Extensions
+
+on:
+  push:
+    tags: ["*"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup the best engine ever
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Get version from tag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/}"
+          if ! [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+){0,3}$ ]]; then
+            echo "Tag $VERSION is not a store friendly version, use something like 1.2.0"
+            exit 1
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Make sure it still works
+        run: |
+          bun run typecheck
+          bun test
+
+      - name: Snap it for both browsers
+        env:
+          SNAP_VERSION: ${{ steps.version.outputs.version }}
+        run: bun run build
+
+      - name: Zip it up - zips are a funny word too
+        env:
+          SNAP_VERSION: ${{ steps.version.outputs.version }}
+        run: bun run pack
+
+      - name: Attach to Release - pray it works
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/jotty-snap_*.zip
+            artifacts/jotty-snap_*.zip.sha256
+          tag_name: ${{ steps.version.outputs.version }}
+
+      - name: Hand the zips to the store jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: jotty-snap-release
+          path: |
+            artifacts/
+            dist/
+
+  publish-chrome:
+    needs: build
+    if: vars.PUBLISH_STORES == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Grab the zips
+        uses: actions/download-artifact@v4
+        with:
+          name: jotty-snap-release
+
+      - name: Setup the best engine ever
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Ship it to the Chrome Web Store
+        env:
+          EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+        run: |
+          bunx chrome-webstore-upload-cli@3 upload \
+            --source "artifacts/jotty-snap_${{ needs.build.outputs.version }}_chrome.zip" \
+            --auto-publish
+
+  publish-firefox:
+    needs: build
+    if: vars.PUBLISH_STORES == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Grab the zips
+        uses: actions/download-artifact@v4
+        with:
+          name: jotty-snap-release
+
+      - name: Setup the best engine ever
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Ship it to addons.mozilla.org
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
+          WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: |
+          bunx web-ext@8 sign \
+            --channel listed \
+            --source-dir dist/firefox \
+            --upload-source-code "artifacts/jotty-snap_${{ needs.build.outputs.version }}_source.zip" \
+            --artifacts-dir web-ext-artifacts

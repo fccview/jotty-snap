@@ -1,0 +1,34 @@
+{
+  "name": "jotty-snap",
+  "version": "0.1.0",
+  "description": "Snap any web page into a Jotty note",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "build:chrome": "bun run scripts/build.ts --target chrome",
+    "build:firefox": "bun run scripts/build.ts --target firefox",
+    "pack": "bun run scripts/pack.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@fontsource-variable/google-sans-code": "^5.3.2",
+    "@fontsource-variable/ibm-plex-sans": "^5.3.0",
+    "@fontsource-variable/work-sans": "^5.3.0",
+    "@hugeicons/core-free-icons": "^4.3.5",
+    "@mozilla/readability": "^0.6.0",
+    "preact": "^11.0.2",
+    "webextension-polyfill": "^0.12.0"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "^21.0.4",
+    "@types/bun": "^1.4.4",
+    "@types/webextension-polyfill": "^0.12.6",
+    "bun-plugin-tailwind": "^0.1.2",
+    "fflate": "^0.8.3",
+    "happy-dom": "^21.0.4",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2"
+  }
+}
